@@ -2,26 +2,23 @@
 
 const Project = require('./projects-model');
 
-function logger(req, res, next) {
-	const timestamp = new Date().toLocaleDateString();
-	const method = req.method;
-	const url = req.originalUrl;
-	console.log(`[${timestamp}] ${method} ${url}`);
-	next();
-}
-
 // tring out try and catch method on id validation
+
 async function validateId(req, res, next) {
 	try {
-		const project = await Project.get(req.params.id);
-		if (!project) {
-			next({ status: 404, message: 'project not found' });
-		} else {
+		const { id } = req.params;
+		const project = await Project.get(id);
+		if (project) {
 			req.project = project;
 			next();
+		} else {
+			next({
+				status: 404,
+				message: 'project not found',
+			});
 		}
-	} catch (error) {
-		next(error);
+	} catch (err) {
+		next(err);
 	}
 }
 
@@ -33,7 +30,7 @@ async function validateProject(req, res, next) {
 		});
 	} else if (!description || !description.trim()) {
 		res.status(400).json({
-			message: 'description is requared',
+			message: 'description is rewuared',
 		});
 	} else {
 		req.name = name.trim();
@@ -43,4 +40,4 @@ async function validateProject(req, res, next) {
 	}
 }
 
-module.exports = { validateId, validateProject, logger };
+module.exports = { validateId, validateProject };
